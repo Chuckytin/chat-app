@@ -21,7 +21,8 @@ Abre tu navegador en: http://localhost:8080/chat
 
 ## Como usar
 
-1. Ingresa tu nombre
+Abre 2 más chats para probarlo.
+1. Ingresa distintos nombres
 2. Escribe mensajes
 3. Presiona Enter o el botón enviar
 4. Los mensajes aparecen en tiempo real
