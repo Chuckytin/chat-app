@@ -1,192 +1,27 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat en Tiempo Real</title>
+
+    <!-- Frameworks externos -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- CSS propio con sintaxis Thymeleaf -->
+    <link rel="stylesheet" th:href="@{/css/chat.css}">
+
+    <!-- Librerías WebSocket -->
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-    <style>
-        :root {
-            --primary-color: #6366f1;
-            --secondary-color: #818cf8;
-            --light-bg: #f8fafc;
-            --dark-bg: #1e293b;
-            --message-sent: #6366f1;
-            --message-received: #e2e8f0;
-        }
-
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .chat-container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-            height: 80vh;
-            max-width: 800px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .chat-header {
-            background: var(--primary-color);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            position: relative;
-            flex-shrink: 0;
-        }
-
-        .chat-messages {
-            padding: 20px;
-            overflow-y: auto;
-            background: var(--light-bg);
-            flex-grow: 1;
-            position: relative;
-        }
-
-        .message {
-            max-width: 70%;
-            margin-bottom: 15px;
-            animation: fadeIn 0.3s ease-in;
-        }
-
-        .message-sent {
-            margin-left: auto;
-        }
-
-        .message-received {
-            margin-right: auto;
-        }
-
-        .message-bubble {
-            padding: 12px 18px;
-            border-radius: 20px;
-            position: relative;
-        }
-
-        .message-sent .message-bubble {
-            background: var(--message-sent);
-            color: white;
-            border-bottom-right-radius: 5px;
-        }
-
-        .message-received .message-bubble {
-            background: var(--message-received);
-            color: #333;
-            border-bottom-left-radius: 5px;
-        }
-
-        .message-sender {
-            font-size: 12px;
-            font-weight: bold;
-            margin-bottom: 4px;
-            color: #666;
-        }
-
-        .message-time {
-            font-size: 11px;
-            opacity: 0.7;
-            margin-top: 5px;
-            text-align: right;
-        }
-
-        .chat-input {
-            padding: 20px;
-            background: white;
-            border-top: 1px solid #eee;
-            flex-shrink: 0;
-        }
-
-        .connection-status {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #4ade80;
-        }
-
-        .status-disconnected {
-            background: #ef4444;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .typing-indicator-container {
-            min-height: 40px;
-            padding: 0 20px;
-            background: var(--light-bg);
-            border-top: 1px solid rgba(0,0,0,0.05);
-            display: flex;
-            align-items: center;
-            flex-shrink: 0;
-        }
-
-        .typing-indicator {
-            font-style: italic;
-            color: #666;
-            font-size: 14px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
-            padding: 8px 16px;
-            max-width: fit-content;
-            display: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .btn-send {
-            background: var(--primary-color);
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            color: white;
-            transition: all 0.3s ease;
-        }
-
-        .btn-send:hover {
-            background: var(--secondary-color);
-            transform: scale(1.05);
-        }
-
-        .user-badge {
-            background: rgba(255,255,255,0.2);
-            padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 12px;
-            margin-left: 10px;
-        }
-
-        .system-message {
-            text-align: center;
-            color: #666;
-            font-style: italic;
-            margin: 10px 0;
-            font-size: 0.9em;
-        }
-    </style>
 </head>
 <body class="d-flex align-items-center justify-content-center py-4">
+
+<!-- Contenedor principal del chat -->
 <div class="chat-container w-100">
-    <!-- Header -->
+
+    <!-- Header del chat -->
     <div class="chat-header">
         <h4 class="mb-0"><i class="fas fa-comments me-2"></i>Chat en Tiempo Real</h4>
         <div class="connection-status">
@@ -195,27 +30,31 @@
         </div>
     </div>
 
-    <!-- Mensajes -->
+    <!-- Área de mensajes -->
     <div class="chat-messages" id="chatMessages">
+        <!-- Estado inicial cuando no hay mensajes -->
         <div class="text-center text-muted py-4" id="emptyState">
             <i class="fas fa-comment-slash fa-2x mb-2"></i>
             <p>No hay mensajes aún. ¡Sé el primero en saludar!</p>
         </div>
     </div>
 
-    <!-- Indicador de escritura fijo -->
+    <!-- Indicador de que alguien está escribiendo -->
     <div class="typing-indicator-container">
         <div class="typing-indicator" id="typingIndicator">
             <span id="typingText"></span>
         </div>
     </div>
 
-    <!-- Input -->
+    <!-- Área de entrada de mensajes -->
     <div class="chat-input">
+        <!-- Input para el nombre de usuario -->
         <div class="input-group mb-2">
             <span class="input-group-text"><i class="fas fa-user"></i></span>
             <input type="text" id="senderInput" class="form-control" placeholder="Tu nombre..." maxlength="20">
         </div>
+
+        <!-- Input para el mensaje y botón de enviar -->
         <div class="input-group">
             <input type="text" id="messageInput" class="form-control" placeholder="Escribe tu mensaje..." maxlength="500">
             <button id="sendMessage" class="btn btn-send" disabled>
@@ -225,263 +64,7 @@
     </div>
 </div>
 
-<script>
-    let stompClient = null;
-    let currentUser = '';
-    let typingTimer = null;
-    let isTyping = false;
-    let reconnectAttempts = 0;
-    const maxReconnectAttempts = 5;
-
-    function setConnected(connected) {
-        const statusDot = document.getElementById('statusDot');
-        const statusText = document.getElementById('statusText');
-        const sendButton = document.getElementById('sendMessage');
-
-        if (connected) {
-            statusDot.classList.remove('status-disconnected');
-            statusText.textContent = 'Conectado';
-            sendButton.disabled = false;
-            reconnectAttempts = 0;
-        } else {
-            statusDot.classList.add('status-disconnected');
-            statusText.textContent = 'Desconectado';
-            sendButton.disabled = true;
-        }
-    }
-
-    function connect() {
-        const socket = new SockJS('/chat');
-        stompClient = Stomp.over(socket);
-
-        stompClient.connect({}, function(frame) {
-            setConnected(true);
-            currentUser = document.getElementById('senderInput').value || 'Anónimo';
-
-            // Guardar el nombre de usuario
-            localStorage.setItem('chatUsername', currentUser);
-
-            // Suscribirse a los temas
-            stompClient.subscribe('/topic/messages', function(message) {
-                const messageData = JSON.parse(message.body);
-                showMessage(messageData);
-            });
-
-            stompClient.subscribe('/topic/typing', function(typing) {
-                const typingData = JSON.parse(typing.body);
-                showTyping(typingData);
-            });
-
-            stompClient.subscribe('/topic/userEvents', function(event) {
-                const eventData = JSON.parse(event.body);
-                handleUserEvent(eventData);
-            });
-
-            // Enviar evento de unión al chat
-            const joinMessage = {
-                sender: currentUser,
-                content: `${currentUser} se unió al chat`,
-                type: 'join'
-            };
-            stompClient.send("/app/sendMessage", {}, JSON.stringify(joinMessage));
-
-            // Registrar usuario
-            const userEvent = {
-                sender: currentUser,
-                type: 'JOIN'
-            };
-            stompClient.send("/app/userJoin", {}, JSON.stringify(userEvent));
-
-        }, function(error) {
-            setConnected(false);
-            console.error('Error de conexión:', error);
-
-            // Intentar reconectar
-            if (reconnectAttempts < maxReconnectAttempts) {
-                setTimeout(function() {
-                    reconnectAttempts++;
-                    console.log(`Intentando reconectar (${reconnectAttempts}/${maxReconnectAttempts})...`);
-                    connect();
-                }, 2000);
-            }
-        });
-    }
-
-    function showMessage(message) {
-        const chatMessages = document.getElementById('chatMessages');
-        const emptyState = document.getElementById('emptyState');
-
-        if (emptyState) emptyState.style.display = 'none';
-
-        const messageElement = document.createElement('div');
-
-        if (message.type === 'join' || message.type === 'leave') {
-            // Mensaje del sistema
-            messageElement.className = 'system-message';
-            messageElement.innerHTML = `<small>${message.content}</small>`;
-        } else {
-            // Mensaje normal
-            messageElement.className = `message ${message.sender === currentUser ? 'message-sent' : 'message-received'}`;
-
-            const now = new Date();
-            const time = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-
-            messageElement.innerHTML = `
-                ${message.sender !== currentUser ? `<div class="message-sender">${message.sender}</div>` : ''}
-                <div class="message-bubble">
-                    <div class="message-content">${message.content}</div>
-                    <div class="message-time">${time}</div>
-                </div>
-            `;
-        }
-
-        chatMessages.appendChild(messageElement);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    function showTyping(typing) {
-        const typingIndicator = document.getElementById('typingIndicator');
-        const typingText = document.getElementById('typingText');
-
-        // No mostrar el indicador para uno mismo o si no es un evento de typing
-        if (typing.sender === currentUser || typing.type !== 'TYPING') {
-            typingIndicator.style.display = 'none';
-            return;
-        }
-
-        if (typing.typing) {
-            typingText.textContent = `${typing.sender} está escribiendo...`;
-            typingIndicator.style.display = 'block';
-
-            // Limpiar timeout anterior y establecer uno nuevo
-            clearTimeout(window.typingTimeout);
-            window.typingTimeout = setTimeout(() => {
-                typingIndicator.style.display = 'none';
-            }, 3000);
-        } else {
-            // Ocultar inmediatamente cuando se recibe "typing: false"
-            clearTimeout(window.typingTimeout);
-            typingIndicator.style.display = 'none';
-        }
-    }
-
-    function handleUserEvent(event) {
-        console.log("Evento de usuario recibido:", event);
-
-        if (event.type === 'JOIN' && event.sender !== currentUser) {
-            // Mostrar mensaje de unión
-            const joinMessage = {
-                sender: event.sender,
-                content: `${event.sender} se unió al chat`,
-                type: 'join'
-            };
-            showMessage(joinMessage);
-        } else if (event.type === 'LEAVE') {
-            // Mostrar mensaje de desconexión
-            const leaveMessage = {
-                sender: event.sender,
-                content: `${event.sender} se desconectó`,
-                type: 'leave'
-            };
-            showMessage(leaveMessage);
-        }
-    }
-
-    function sendMessage() {
-        const sender = document.getElementById('senderInput').value || 'Anónimo';
-        const content = document.getElementById('messageInput').value.trim();
-
-        if (content && stompClient && stompClient.connected) {
-            const chatMessage = {
-                sender: sender,
-                content: content,
-                type: 'chat'
-            };
-
-            stompClient.send("/app/sendMessage", {}, JSON.stringify(chatMessage));
-            document.getElementById('messageInput').value = '';
-
-            // Notificar que dejó de escribir
-            sendTypingEvent(false);
-            isTyping = false;
-            clearTimeout(typingTimer);
-        }
-    }
-
-    function sendTypingEvent(isTypingValue) {
-        if (stompClient && stompClient.connected) {
-            const typingEvent = {
-                sender: document.getElementById('senderInput').value || 'Anónimo',
-                typing: isTypingValue,
-                type: 'TYPING'
-            };
-            stompClient.send("/app/typing", {}, JSON.stringify(typingEvent));
-        }
-    }
-
-    // Event Listeners
-    document.getElementById('sendMessage').addEventListener('click', sendMessage);
-
-    document.getElementById('messageInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            sendMessage();
-        }
-    });
-
-    document.getElementById('messageInput').addEventListener('input', function() {
-        // Notificar que está escribiendo
-        clearTimeout(typingTimer);
-
-        if (!isTyping) {
-            sendTypingEvent(true);
-            isTyping = true;
-        }
-
-        typingTimer = setTimeout(function() {
-            sendTypingEvent(false);
-            isTyping = false;
-        }, 1000);
-    });
-
-    document.getElementById('senderInput').addEventListener('change', function() {
-        if (stompClient && stompClient.connected) {
-            const oldUser = currentUser;
-            currentUser = this.value || 'Anónimo';
-
-            if (oldUser !== currentUser) {
-                // Notificar cambio de nombre
-                const systemMessage = {
-                    sender: 'Sistema',
-                    content: `${oldUser} ahora es ${currentUser}`,
-                    type: 'change'
-                };
-                stompClient.send("/app/sendMessage", {}, JSON.stringify(systemMessage));
-            }
-        }
-    });
-
-    // Detectar cierre de ventana/pestaña
-    window.addEventListener('beforeunload', function() {
-        if (stompClient && stompClient.connected && currentUser) {
-            // Enviar evento de desconexión
-            const userEvent = {
-                sender: currentUser,
-                type: 'LEAVE'
-            };
-            stompClient.send("/app/userEvent", {}, JSON.stringify(userEvent));
-        }
-    });
-
-    // Inicializar
-    window.onload = function() {
-        // Recuperar nombre de usuario si existe
-        const savedUsername = localStorage.getItem('chatUsername');
-        if (savedUsername) {
-            document.getElementById('senderInput').value = savedUsername;
-        }
-
-        connect();
-    };
-</script>
+<!-- JS propio con sintaxis Thymeleaf -->
+<script th:src="@{/js/chat.js}"></script>
 </body>
 </html>

@@ -1,0 +1,197 @@
+/* Variables CSS para colores y estilos consistentes */
+:root {
+    --primary-color: #6366f1;
+    --secondary-color: #818cf8;
+    --light-bg: #f8fafc;
+    --dark-bg: #1e293b;
+    --message-sent: #6366f1;
+    --message-received: #e2e8f0;
+}
+
+/* Estilos generales del body */
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Contenedor principal del chat */
+.chat-container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    overflow: hidden;
+    height: 80vh;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header del chat */
+.chat-header {
+    background: var(--primary-color);
+    color: white;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    flex-shrink: 0;
+}
+
+/* Área de mensajes */
+.chat-messages {
+    padding: 20px;
+    overflow-y: auto;
+    background: var(--light-bg);
+    flex-grow: 1;
+    position: relative;
+}
+
+/* Estilos base para mensajes */
+.message {
+    max-width: 70%;
+    margin-bottom: 15px;
+    animation: fadeIn 0.3s ease-in;
+}
+
+/* Mensajes enviados por el usuario actual */
+.message-sent {
+    margin-left: auto;
+}
+
+/* Mensajes recibidos de otros usuarios */
+.message-received {
+    margin-right: auto;
+}
+
+/* Burbuja de mensaje */
+.message-bubble {
+    padding: 12px 18px;
+    border-radius: 20px;
+    position: relative;
+}
+
+/* Burbuja de mensaje enviado */
+.message-sent .message-bubble {
+    background: var(--message-sent);
+    color: white;
+    border-bottom-right-radius: 5px;
+}
+
+/* Burbuja de mensaje recibido */
+.message-received .message-bubble {
+    background: var(--message-received);
+    color: #333;
+    border-bottom-left-radius: 5px;
+}
+
+/* Nombre del remitente */
+.message-sender {
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: #666;
+}
+
+/* Hora del mensaje */
+.message-time {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-top: 5px;
+    text-align: right;
+}
+
+/* Área de entrada */
+.chat-input {
+    padding: 20px;
+    background: white;
+    border-top: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+/* Estado de conexión */
+.connection-status {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Punto de estado de conexión */
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #4ade80;
+}
+
+/* Estado desconectado */
+.status-disconnected {
+    background: #ef4444;
+}
+
+/* Animación de aparición de mensajes */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Contenedor del indicador de escritura */
+.typing-indicator-container {
+    min-height: 40px;
+    padding: 0 20px;
+    background: var(--light-bg);
+    border-top: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* Indicador de escritura */
+.typing-indicator {
+    font-style: italic;
+    color: #666;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    padding: 8px 16px;
+    max-width: fit-content;
+    display: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Botón de enviar */
+.btn-send {
+    background: var(--primary-color);
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+/* Efecto hover del botón de enviar */
+.btn-send:hover {
+    background: var(--secondary-color);
+    transform: scale(1.05);
+}
+
+/* Badge de usuario */
+.user-badge {
+    background: rgba(255,255,255,0.2);
+    padding: 4px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+/* Mensajes del sistema */
+.system-message {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    margin: 10px 0;
+    font-size: 0.9em;
+}
